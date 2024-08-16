@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Random Number Generator</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+    {% if user.is_authenticated %}
+        <div class="container">
+            <div class="overlay-container">
+                <div class="overlay">
+                    <div class="overlay-panel overlay-right">
+                        <h1>Привет, {{ user.username }}!</h1>
+                        <p>Рандомный номер это <span id="number">-</span></p>
+                        <a href="{% url 'account_logout' %}">Круто, но хочу Выйти</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="container">
+            <div class="overlay-container">
+                <div class="overlay">
+                    <div class="overlay-panel overlay-right">
+                        <h1>Вы кто такие?! Я вас не звал!</h1>
+                        <p>Рандомный номер только зарегистрированным показываю</p>
+                        {% load socialaccount %}
+                        <a href="{% provider_login_url 'github' %}">Авторизоваться</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <script>
+        const numberElement = document.getElementById('number');
+        const socket = new WebSocket('ws://' + window.location.host + '/ws/random/');
+
+        socket.onmessage = function(event) {
+            numberElement.innerText = event.data;
+        };
+
+        socket.onclose = function(event) {
+            console.error('Socket closed unexpectedly');
+        };
+    </script>
+</body>
+</html>
